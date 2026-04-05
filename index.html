@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>一建刷题 2026-04-05</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5;
+  color: #222;
+  font-size: 15px;
+}
+/* 顶栏 */
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  padding: 16px 16px 12px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.header h1 { font-size: 17px; font-weight: 700; }
+.header .meta { font-size: 12px; color: #aab; margin-top: 4px; }
+.score-bar {
+  display: flex; gap: 12px; margin-top: 10px;
+  flex-wrap: wrap;
+}
+.score-tag {
+  background: rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+/* 科目 Tab */
+.tabs {
+  display: flex; overflow-x: auto; background: #fff;
+  border-bottom: 2px solid #e8e8e8;
+  padding: 0 8px;
+  position: sticky; top: 72px; z-index: 99;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border: none; background: none;
+  font-size: 14px; color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn.active {
+  color: var(--subject-color);
+  border-bottom-color: var(--subject-color);
+  font-weight: 600;
+}
+/* 科目内容 */
+.subject-panel { display: none; padding: 12px; }
+.subject-panel.active { display: block; }
+/* 题目卡片 */
+.q-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s;
+}
+.q-num {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.q-text {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+/* 选项 */
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt-btn {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #f7f8fa;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: all 0.15s;
+  width: 100%;
+  color: #333;
+}
+.opt-btn:active { transform: scale(0.98); }
+.opt-label {
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 20px;
+  flex-shrink: 0;
+}
+/* 答题结果状态 */
+.opt-btn.correct {
+  background: #edfaf1;
+  border-color: #27ae60;
+  color: #1e8449;
+}
+.opt-btn.wrong {
+  background: #fdf2f0;
+  border-color: #e74c3c;
+  color: #c0392b;
+}
+.opt-btn.show-correct {
+  background: #edfaf1;
+  border-color: #27ae60;
+  color: #1e8449;
+}
+.opt-btn:disabled {
+  cursor: default;
+}
+/* 解析 */
+.analysis {
+  margin-top: 12px;
+  background: #fffbe6;
+  border-left: 4px solid #f39c12;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  display: none;
+  color: #555;
+}
+.analysis.show { display: block; }
+.analysis-title { font-weight: 700; color: #e67e22; margin-bottom: 4px; }
+/* 结果标记 */
+.result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  margin-top: 10px;
+}
+.badge-correct { background: #edfaf1; color: #27ae60; }
+.badge-wrong   { background: #fdf2f0; color: #e74c3c; }
+/* 进度条 */
+.progress-wrap {
+  background: #eee;
+  border-radius: 4px;
+  height: 4px;
+  margin: 8px 0 4px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--subject-color);
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.progress-text {
+  font-size: 11px;
+  color: #999;
+  text-align: right;
+}
+/* 科目得分 */
+.subj-score {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.subj-score-info { font-size: 13px; color: #666; }
+.subj-score-num { font-size: 20px; font-weight: 800; }
+/* 重新作答按钮 */
+.reset-btn {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 0 12px 20px;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+.reset-btn:active { transform: scale(0.97); }
+/* 空白填充 */
+.spacer { height: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📝 一建刷题 · 2026-04-05</h1>
+  <div class="meta">距考试 <b style="color:#ffd700">40</b> 天 · 共 <span id="total-count">0</span> 题</div>
+  <div class="score-bar" id="score-bar"></div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div id="panels"></div>
+
+<div class="spacer"></div>
+
+<script>
+const DATA = [{"name": "建筑材料与构造", "short": "材料", "color": "#e74c3c", "questions": [{"q": "建筑构造中，勒脚的高度一般不应低于（ ）：", "opts": ["A. 300mm", "B. 500mm", "C. 700mm", "D. 1000mm"], "ans": "C", "exp": "勒脚高度一般不低于室内地面与室外地面高差加300mm，且≥700mm"}, {"q": "变形缝中，伸缩缝的设置主要考虑的因素是：", "opts": ["A. 地基不均匀沉降", "B. 温度变化引起的结构伸缩", "C. 地震作用", "D. 施工缝留设"], "ans": "B", "exp": "伸缩缝（温度缝）应对温度变形；沉降缝应对不均匀沉降；防震缝应对地震"}, {"q": "加气混凝土砌块的最低强度等级为：", "opts": ["A. A1.0", "B. A2.5", "C. A5.0", "D. A7.5"], "ans": "B", "exp": "加气混凝土砌块强度等级有A1.0/A2.5/A3.5/A5.0/A7.5，最低A2.5（承重用时≥A5.0）"}, {"q": "混凝土标准试块尺寸和养护条件是：", "opts": ["A. 100×100×100mm，标养28天", "B. 150×150×150mm，标养28天", "C. 200×200×200mm，标养28天", "D. 150×150×150mm，标养21天"], "ans": "B", "exp": "标准试块150×150×150mm，在20±2℃、95%湿度条件下养护28天"}, {"q": "建筑中常用的保温材料不包括：", "opts": ["A. 岩棉", "B. 聚苯乙烯泡沫", "C. 玻璃棉", "D. 石膏板"], "ans": "D", "exp": "石膏板主要用于隔墙和吊顶，不属于保温材料。岩棉、EPS/XPS泡沫、玻璃棉是常用保温材料"}, {"q": "有水房间（如卫生间）的楼面标高应低于相邻房间：", "opts": ["A. 10mm", "B. 15mm", "C. 20mm", "D. 30mm"], "ans": "C", "exp": "有水房间楼地面标高应低于相邻房间≥20mm（或15-20mm），防止水外溢"}, {"q": "建筑玻璃中，安全玻璃包括：", "opts": ["A. 钢化玻璃和夹层玻璃", "B. 普通平板玻璃和浮法玻璃", "C. 磨砂玻璃和压花玻璃", "D. 热反射玻璃和吸热玻璃"], "ans": "A", "exp": "安全玻璃包括钢化玻璃（破碎后为钝角小颗粒）和夹层玻璃（碎片粘在一起）"}, {"q": "C30混凝土中，30代表：", "opts": ["A. 抗压强度标准值30MPa", "B. 抗拉强度30MPa", "C. 抗折强度30MPa", "D. 弹性模量30GPa"], "ans": "A", "exp": "C30表示立方体抗压强度标准值≥30MPa，保证率95%"}, {"q": "散水（排水坡）的宽度一般不应小于（ ）：", "opts": ["A. 500mm", "B. 600mm", "C. 800mm", "D. 1000mm"], "ans": "B", "exp": "散水宽度≥600mm，坡度3%-5%，与勒脚交接处设沉降缝"}, {"q": "建筑涂料中，内墙涂料不推荐使用：", "opts": ["A. 乳胶漆", "B. 水溶性涂料", "C. 溶剂型涂料", "D. 无机涂料"], "ans": "C", "exp": "溶剂型涂料含有机挥发物(VOC)，不适合室内使用；应选水性涂料（乳胶漆等）"}, {"q": "下列哪种水泥不宜用于大体积混凝土？", "opts": ["A. 矿渣水泥", "B. 火山灰水泥", "C. 粉煤灰水泥", "D. 硅酸盐水泥"], "ans": "D", "exp": "硅酸盐水泥水化热大，大体积混凝土易产生温度裂缝；矿渣/火山灰/粉煤灰水泥水化热低"}, {"q": "硅酸盐水泥的初凝时间不得早于（ ），终凝时间不得迟于（ ）：", "opts": ["A. 30min，6.5h", "B. 45min，10h", "C. 45min，6.5h", "D. 60min，10h"], "ans": "C", "exp": "硅酸盐水泥初凝≥45min，终凝≤6.5h；普通水泥终凝≤10h"}, {"q": "隔墙的构造要求不包括：", "opts": ["A. 自重轻", "B. 厚度薄", "C. 必须承重", "D. 隔声好"], "ans": "C", "exp": "隔墙为非承重墙，要求自重轻、厚度薄、隔声好、便于装拆，不能承重"}, {"q": "下列哪种不属于有机绝热材料？", "opts": ["A. 聚氨酯泡沫", "B. 聚苯乙烯泡沫", "C. 岩棉", "D. 脲醛泡沫"], "ans": "C", "exp": "岩棉属无机绝热材料（矿物棉类）；聚氨酯、聚苯乙烯、脲醛泡沫均为有机绝热材料"}, {"q": "花岗岩和大理石的区别，正确的是：", "opts": ["A. 花岗岩耐碱不耐酸，大理石耐酸不耐碱", "B. 花岗岩耐酸不耐碱，大理石不耐酸", "C. 两者都耐酸碱", "D. 两者都不耐酸碱"], "ans": "B", "exp": "花岗岩为火成岩（酸性），耐酸不耐碱；大理石为变质岩（含CaCO₃），不耐酸"}, {"q": "石材的吸水率与耐久性的关系是：", "opts": ["A. 吸水率越大越耐久", "B. 吸水率越小越耐久", "C. 无关", "D. 吸水率=0最耐久"], "ans": "B", "exp": "吸水率越小，说明石材孔隙少、致密，抗冻性和耐久性越好"}, {"q": "建筑砂浆按用途分类不包括：", "opts": ["A. 砌筑砂浆", "B. 抹面砂浆", "C. 防水砂浆", "D. 结构砂浆"], "ans": "D", "exp": "砂浆按用途分为砌筑砂浆、抹面砂浆、防水砂浆、装饰砂浆等，没有'结构砂浆'的分类"}, {"q": "下列材料中，属于气硬性胶凝材料的是：", "opts": ["A. 水泥", "B. 石膏", "C. 沥青", "D. 合成树脂"], "ans": "B", "exp": "石膏、石灰、水玻璃为气硬性胶凝材料（只能在空气中硬化）；水泥为水硬性胶凝材料"}, {"q": "普通烧结砖的规格为：", "opts": ["A. 240×115×90mm", "B. 240×115×53mm", "C. 190×190×90mm", "D. 300×150×75mm"], "ans": "B", "exp": "标准烧结砖240×115×53mm（含灰缝250×120×60mm的模数制）"}, {"q": "混凝土中砂率是指：", "opts": ["A. 砂占混凝土总重量的百分比", "B. 砂占骨料总重量的百分比", "C. 砂的含水率", "D. 砂的细度模数"], "ans": "B", "exp": "砂率 = 砂质量 / (砂质量 + 石子质量) × 100%"}]}, {"name": "建筑设计", "short": "设计", "color": "#2980b9", "questions": [{"q": "住宅套型内，起居室（厅）的使用面积不应小于：", "opts": ["A. 10㎡", "B. 12㎡", "C. 14㎡", "D. 16㎡"], "ans": "B", "exp": "住宅设计规范：起居室最小使用面积12㎡"}, {"q": "普通住宅卧室内的允许噪声级（A声级）昼间为：", "opts": ["A. ≤37dB", "B. ≤40dB", "C. ≤45dB", "D. ≤50dB"], "ans": "C", "exp": "民用建筑隔声设计规范：住宅卧室昼间≤45dB"}, {"q": "下列哪种建筑类型不考虑无障碍设计？", "opts": ["A. 办公建筑", "B. 交通建筑", "C. 独立别墅", "D. 医疗建筑"], "ans": "C", "exp": "独立别墅为私人住宅，可不考虑公共无障碍设计要求"}, {"q": "公共建筑楼梯梯段净宽，六层及以下不应小于：", "opts": ["A. 1.0m", "B. 1.1m", "C. 1.2m", "D. 1.3m"], "ans": "B", "exp": "楼梯梯段净宽六层及以下不应小于1.1m"}, {"q": "无障碍卫生间内部应留有不小于的轮椅回转面积：", "opts": ["A. 1.2m×1.2m", "B. 1.5m×1.5m", "C. 1.8m×1.8m", "D. 2.0m×2.0m"], "ans": "B", "exp": "无障碍卫生间应留有不小于1.5m直径的轮椅回转空间"}, {"q": "居住区内步行道最小宽度为：", "opts": ["A. 1.0m", "B. 1.2m", "C. 1.5m", "D. 2.0m"], "ans": "D", "exp": "居住区环境设计标准：主要步行道不小于2.0m"}, {"q": "住宅建筑中，厨房的使用面积不应小于：", "opts": ["A. 3.5㎡", "B. 4.0㎡", "C. 4.5㎡", "D. 5.0㎡"], "ans": "D", "exp": "住宅设计规范规定，厨房最小使用面积不应小于5.0㎡"}, {"q": "建筑高度大于的民用建筑应设置消防电梯：", "opts": ["A. 24m", "B. 32m", "C. 50m", "D. 100m"], "ans": "B", "exp": "建筑高度大于32m的住宅和其他建筑高度大于24m的非单层公共建筑应设消防电梯"}, {"q": "普通教室的视听距离不宜超过：", "opts": ["A. 8.0m", "B. 8.5m", "C. 9.0m", "D. 10.0m"], "ans": "B", "exp": "教室最后一排课桌后沿与黑板的水平距离不宜大于8.5m"}, {"q": "防火墙的耐火极限不应低于：", "opts": ["A. 2.0h", "B. 3.0h", "C. 4.0h", "D. 5.0h"], "ans": "B", "exp": "防火墙耐火极限不低于3.0小时"}, {"q": "建筑体型系数是指：", "opts": ["A. 建筑物周长与底面积之比", "B. 建筑物外表面积与体积之比", "C. 建筑物高度与宽度之比", "D. 窗墙面积比"], "ans": "B", "exp": "体型系数=建筑物外表面积/包围体积，是节能设计的重要指标"}, {"q": "绿色建筑中，海绵城市设计的核心是：", "opts": ["A. 使用绿色建材", "B. 雨水的渗滞蓄净用排", "C. 增加绿化面积", "D. 降低建筑能耗"], "ans": "B", "exp": "海绵城市核心是\"渗、滞、蓄、净、用、排\"六字方针"}, {"q": "影剧院观众厅的座位排列，短排法两侧走道之间的排数不宜超过：", "opts": ["A. 15排", "B. 18排", "C. 20排", "D. 22排"], "ans": "C", "exp": "剧场建筑设计规范：短排法两侧走道间不超过20排"}, {"q": "地下车库车辆出入口净宽，双车道不应小于：", "opts": ["A. 5.0m", "B. 5.5m", "C. 6.0m", "D. 7.0m"], "ans": "B", "exp": "汽车库建筑设计规范：双车道出入口净宽≥5.5m"}, {"q": "商场营业厅内疏散通道的最小净宽度为：", "opts": ["A. 1.2m", "B. 1.4m", "C. 1.5m", "D. 2.0m"], "ans": "B", "exp": "商店建筑设计规范：营业厅疏散通道最小净宽1.4m"}, {"q": "办公建筑中，普通办公室的室内温度夏季设计值为：", "opts": ["A. 24~26℃", "B. 25~27℃", "C. 26~28℃", "D. 27~29℃"], "ans": "C", "exp": "办公建筑设计规范：夏季室内温度26~28℃"}, {"q": "公共建筑中，自动扶梯的倾斜角度不应大于：", "opts": ["A. 25°", "B. 30°", "C. 35°", "D. 45°"], "ans": "B", "exp": "规范规定自动扶梯倾角不应超过30°"}, {"q": "办公建筑走廊净宽，双面布房时不应小于：", "opts": ["A. 1.2m", "B. 1.5m", "C. 1.8m", "D. 2.1m"], "ans": "B", "exp": "办公建筑设计规范：双面布房走廊净宽≥1.5m"}, {"q": "民用建筑的设计使用年限，普通建筑为：", "opts": ["A. 25年", "B. 50年", "C. 70年", "D. 100年"], "ans": "B", "exp": "普通建筑结构设计使用年限为50年"}, {"q": "绿色建筑评价标准中，绿色建筑分为几个等级？", "opts": ["A. 二个等级", "B. 三个等级", "C. 四个等级", "D. 五个等级"], "ans": "B", "exp": "新版绿色建筑评价标准（GB/T 50378）将绿色建筑分为基本级、一星、二星、三星，但实际评价为一星至三星三个等级"}]}, {"name": "结构与物理设备", "short": "结构", "color": "#27ae60", "questions": [{"q": "中央空调系统中，风机盘管属于：", "opts": ["A. 全空气系统", "B. 全水系统", "C. 空气-水系统", "D. 冷剂系统"], "ans": "C", "exp": "风机盘管+新风系统属于空气-水系统"}, {"q": "建筑电气中，电线电缆的选择主要考虑：", "opts": ["A. 载流量、电压降、热稳定", "B. 只考虑载流量", "C. 只考虑电压降", "D. 只考虑价格"], "ans": "A", "exp": "电线电缆选择需综合考虑载流量、电压降、热稳定、机械强度等"}, {"q": "消火栓栓口距地面的安装高度为：", "opts": ["A. 0.9m", "B. 1.0m", "C. 1.1m", "D. 1.2m"], "ans": "C", "exp": "消火栓栓口中心距地面高度为1.1m"}, {"q": "应急照明中，疏散通道照明的地面最低水平照度不应低于：", "opts": ["A. 0.5lx", "B. 1.0lx", "C. 2.0lx", "D. 5.0lx"], "ans": "B", "exp": "疏散通道地面最低水平照度不低于1.0lx"}, {"q": "围护结构热惰性指标D值的含义是：", "opts": ["A. 材料的导热系数", "B. 材料热阻与蓄热系数乘积之和", "C. 材料的比热容", "D. 表面换热系数"], "ans": "B", "exp": "D=ΣRi×Si，是热阻和蓄热系数乘积之和，反映围护结构抵抗温度波动的能力"}, {"q": "建筑热水供应系统中，热水温度一般为：", "opts": ["A. 40~45℃", "B. 50~55℃", "C. 55~60℃", "D. 70~80℃"], "ans": "C", "exp": "热水供水温度一般为55~60℃，配水点水温不低于45℃"}, {"q": "砌体结构房屋，钢筋混凝土构造柱的最小截面尺寸为：", "opts": ["A. 180mm×180mm", "B. 200mm×200mm", "C. 240mm×180mm", "D. 240mm×240mm"], "ans": "D", "exp": "构造柱最小截面240mm×240mm"}, {"q": "建筑结构的安全等级分为几级？", "opts": ["A. 二级", "B. 三级", "C. 四级", "D. 五级"], "ans": "B", "exp": "建筑结构安全等级分为一级、二级、三级"}, {"q": "剪力墙结构的适宜高度范围是：", "opts": ["A. 30~50m", "B. 50~80m", "C. 80~150m", "D. 150m以上"], "ans": "C", "exp": "剪力墙结构适用于较高层建筑，一般80~150m范围（A/B级高度）"}, {"q": "钢筋混凝土框架-剪力墙结构中，剪力墙承担的地震倾覆力矩不宜小于结构总地震倾覆力矩的：", "opts": ["A. 30%", "B. 40%", "C. 50%", "D. 60%"], "ans": "C", "exp": "框剪结构中剪力墙承担的倾覆力矩≥50%时，才能发挥剪力墙第一道防线的作用"}, {"q": "框架结构中，梁柱节点区的箍筋间距不应大于：", "opts": ["A. 50mm", "B. 75mm", "C. 100mm", "D. 150mm"], "ans": "C", "exp": "框架节点核心区箍筋最大间距100mm"}, {"q": "以下哪种基础形式最适合软土地基上的高层建筑？", "opts": ["A. 条形基础", "B. 独立基础", "C. 筏板基础", "D. 毛石基础"], "ans": "C", "exp": "软土地基上的高层建筑宜采用筏板基础或桩基础"}, {"q": "建筑物防雷分类中，下列哪类建筑应划为第二类防雷建筑？", "opts": ["A. 国家级重要建筑", "B. 大型住宅", "C. 一般工业厂房", "D. 小型商铺"], "ans": "A", "exp": "国家级重点文物保护建筑、国家级会堂等属于第二类防雷建筑"}, {"q": "我国建筑抗震设防的目标是：", "opts": ["A. 小震不坏、中震可修、大震不倒", "B. 小震可修、中震不倒、大震不坏", "C. 小震不倒、中震不坏、大震可修", "D. 所有地震都不坏"], "ans": "A", "exp": "\"小震不坏、中震可修、大震不倒\"是抗震设防的三水准目标"}, {"q": "建筑给水排水设计规范中，一个排水立管的通气方式为：", "opts": ["A. 不需要通气", "B. 设专用通气立管", "C. 设伸顶通气管", "D. 设环形通气管"], "ans": "C", "exp": "一般建筑排水立管设伸顶通气管即可满足要求"}, {"q": "钢筋混凝土梁的截面高度一般取跨度的：", "opts": ["A. 1/6~1/8", "B. 1/8~1/12", "C. 1/10~1/14", "D. 1/12~1/18"], "ans": "B", "exp": "简支梁截面高度一般为跨度的1/8~1/12"}, {"q": "建筑日照中，太阳高度角与地理纬度的关系是：", "opts": ["A. 纬度越高太阳高度角越大", "B. 纬度越低太阳高度角越大", "C. 无关", "D. 只有夏天有关"], "ans": "B", "exp": "纬度越低（越靠近赤道），太阳高度角越大"}, {"q": "采光系数C的定义是：", "opts": ["A. 室内照度/室外散射光照度", "B. 室外照度/室内照度", "C. 室内照度/室外总照度", "D. 窗口照度/室内照度"], "ans": "A", "exp": "采光系数=室内某点照度/同一时间室外天空漫射光照度×100%"}, {"q": "低压配电系统中，TN-S系统的特点：", "opts": ["A. 中性线和保护线合用", "B. 中性线和保护线分开", "C. 中性线接地", "D. 不接地系统"], "ans": "B", "exp": "TN-S系统的PE线和N线全部分开（S=Separate）"}, {"q": "混凝土强度等级C30中的\"30\"代表：", "opts": ["A. 抗拉强度标准值30MPa", "B. 立方体抗压强度标准值30MPa", "C. 轴心抗压强度标准值30MPa", "D. 弯曲抗压强度标准值30MPa"], "ans": "B", "exp": "C30表示混凝土立方体抗压强度标准值为30MPa（150mm边长立方体，28天龄期，95%保证率）"}]}, {"name": "建筑方案设计", "short": "方案", "color": "#8e44ad", "questions": [{"q": "方案作图中，建筑的采光要求中，普通教室窗地面积比不应小于：", "opts": ["A. 1/4", "B. 1/5", "C. 1/6", "D. 1/7"], "ans": "B", "exp": "教室窗地比≥1/5（采光系数不低于2%），美术教室要求更高"}, {"q": "展览馆展厅净高一般不低于（ ）：", "opts": ["A. 3.0m", "B. 3.5m", "C. 4.0m", "D. 4.5m"], "ans": "B", "exp": "展厅净高一般不低于3.5m，有大型展品时应更高"}, {"q": "建筑方案作图题评分标准中，最重要的评分项是：", "opts": ["A. 图面表达效果", "B. 功能关系和流线组织", "C. 立面造型美观", "D. 标注尺寸精确"], "ans": "B", "exp": "功能关系和流线组织是方案作图的核心评分项，占总分比重最大"}, {"q": "高层建筑中，防烟楼梯间的设置要求是：", "opts": ["A. 楼梯间设门即可", "B. 楼梯间入口设防烟的前室或阳台", "C. 楼梯间设窗户", "D. 楼梯间开向走廊"], "ans": "B", "exp": "防烟楼梯间在入口处设置防烟前室（面积≥6m²）或阳台/凹廊，前室设正压送风"}, {"q": "住宅方案设计中，卧室的最小使用面积（双人卧室）为（ ）：", "opts": ["A. 8m²", "B. 9m²", "C. 10m²", "D. 12m²"], "ans": "C", "exp": "双人卧室≥10m²（或9m²，因规范版本略有差异），单人卧室≥6m²"}, {"q": "高层公共建筑的疏散楼梯间形式，建筑高度大于32m的二类高层应采用：", "opts": ["A. 敞开楼梯间", "B. 封闭楼梯间", "C. 防烟楼梯间", "D. 室外楼梯"], "ans": "C", "exp": "一类高层和大于32m的二类高层应设防烟楼梯间；其他二类高层可设封闭楼梯间"}, {"q": "建筑方案设计中，无障碍入口的坡道坡度不宜大于（ ）：", "opts": ["A. 1:8", "B. 1:10", "C. 1:12", "D. 1:16"], "ans": "C", "exp": "无障碍坡道坡度不应大于1:12，每段坡道高度不超过0.75m，水平长度不超过9m"}, {"q": "老年人照料设施中，老年人居室短边净宽不宜小于（ ）：", "opts": ["A. 2.4m", "B. 3.0m", "C. 3.6m", "D. 4.0m"], "ans": "B", "exp": "老年人居室短边净宽≥3.0m，以方便轮椅通行和护理"}, {"q": "文化馆设计中，观演用房与阅览用房的布局关系应该是：", "opts": ["A. 紧密相邻", "B. 分区设置、互不干扰", "C. 上下叠加", "D. 穿套布置"], "ans": "B", "exp": "动静分区原则，观演区（动、吵）与阅览区（静）应分开，避免噪声干扰"}, {"q": "下列哪种功能关系在方案设计中属于应避免的？", "opts": ["A. 洁净区与污染区相邻", "B. 安静区与嘈杂区直接相邻无隔离", "C. 公共区靠近主入口", "D. 服务区靠近后勤入口"], "ans": "B", "exp": "动静分区、洁污分区是基本原则，安静区与嘈杂区应有效隔离"}, {"q": "建筑方案设计作图中，考生最常犯的错误是：", "opts": ["A. 面积分配不当和流线混乱", "B. 图纸不美观", "C. 标注太多", "D. 线条不整齐"], "ans": "A", "exp": "最常见错误：面积超差、功能区之间关系混乱、疏散距离不够、漏画关键房间"}, {"q": "建筑方案设计考试中，关于平面功能气泡图的说法，正确的是：", "opts": ["A. 气泡图是必须交图的成果", "B. 气泡图是分析功能关系的工具，不需要交图", "C. 气泡图代表建筑外观", "D. 气泡图就是总平面图"], "ans": "B", "exp": "气泡图是审题分析阶段的功能关系工具，帮助理清各功能区的关系，不需要在成果图中体现"}, {"q": "方案作图中，当建筑有不同标高层时，应特别注意：", "opts": ["A. 立面造型", "B. 无障碍设计（坡道、电梯）", "C. 装修效果", "D. 绿化面积"], "ans": "B", "exp": "不同标高之间必须设置无障碍坡道或电梯，这是常考的规范要点"}, {"q": "方案作图中，关于总平面图的要求，不正确的是：", "opts": ["A. 需标注出入口位置", "B. 需标注场地与道路的关系", "C. 需标注建筑外包尺寸", "D. 不需要画绿化"], "ans": "D", "exp": "总平面图中应包含出入口、道路关系、建筑外包尺寸、绿化（至少示意）"}, {"q": "图书馆设计中，书库与阅览室的关系宜采用：", "opts": ["A. 分散在两侧", "B. 书库在内、阅览在外", "C. 书库在外、阅览在内", "D. 两者并列布置"], "ans": "B", "exp": "书库在内（核心区）、阅览在外（周边），便于管理且减少搬运距离"}]}];
+
+// 状态：每道题是否已作答及是否正确
+const state = {};
+// 各科目题数
+const subjectTotal = {};
+const subjectCorrect = {};
+
+function init() {
+  const tabs = document.getElementById('tabs');
+  const panels = document.getElementById('panels');
+  let totalQ = 0;
+
+  DATA.forEach((subj, si) => {
+    subjectTotal[si] = subj.questions.length;
+    subjectCorrect[si] = 0;
+    totalQ += subj.questions.length;
+
+    // Tab按钮
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (si === 0 ? ' active' : '');
+    btn.style.setProperty('--subject-color', subj.color);
+    btn.textContent = subj.short + '(' + subj.questions.length + ')';
+    btn.onclick = () => switchTab(si);
+    btn.id = 'tab-' + si;
+    tabs.appendChild(btn);
+
+    // 面板
+    const panel = document.createElement('div');
+    panel.className = 'subject-panel' + (si === 0 ? ' active' : '');
+    panel.id = 'panel-' + si;
+    panel.style.setProperty('--subject-color', subj.color);
+
+    // 进度条
+    const prog = document.createElement('div');
+    prog.innerHTML = `
+      <div class="progress-wrap"><div class="progress-bar" id="prog-${si}" style="background:${subj.color}"></div></div>
+      <div class="progress-text" id="prog-text-${si}">0 / ${subj.questions.length}</div>
+    `;
+    panel.appendChild(prog);
+
+    // 各题
+    subj.questions.forEach((q, qi) => {
+      const key = si + '_' + qi;
+      state[key] = null; // null=未答, true=答对, false=答错
+
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      card.id = 'card-' + key;
+
+      const opts_html = q.opts.map((opt, oi) => {
+        const label = opt[0]; // A B C D
+        const text = opt.slice(3);
+        return `<button class="opt-btn" id="opt-${key}-${oi}" onclick="answer('${key}','${label}','${q.ans}')">
+          <span class="opt-label">${label}</span>
+          <span>${text}</span>
+        </button>`;
+      }).join('');
+
+      card.innerHTML = `
+        <div class="q-num">第${qi+1}题</div>
+        <div class="q-text">${q.q}</div>
+        <div class="opts" id="opts-${key}">${opts_html}</div>
+        <div class="analysis" id="anal-${key}">
+          <div class="analysis-title">💡 解析</div>
+          ${q.exp}
+        </div>
+      `;
+      panel.appendChild(card);
+    });
+
+    panels.appendChild(panel);
+  });
+
+  document.getElementById('total-count').textContent = totalQ;
+  updateScoreBar();
+}
+
+function switchTab(si) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===si));
+  document.querySelectorAll('.subject-panel').forEach((p,i) => p.classList.toggle('active', i===si));
+}
+
+function answer(key, chosen, correct) {
+  if (state[key] !== null) return; // 已作答
+  
+  const isCorrect = chosen === correct;
+  state[key] = isCorrect;
+
+  // 解析科目索引
+  const si = parseInt(key.split('_')[0]);
+  
+  // 更新所有选项样式
+  const optsContainer = document.getElementById('opts-' + key);
+  optsContainer.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.disabled = true;
+    const lbl = btn.querySelector('.opt-label').textContent;
+    if (lbl === correct) btn.classList.add('show-correct');
+    if (lbl === chosen && chosen !== correct) btn.classList.add('wrong');
+    if (lbl === chosen && chosen === correct) btn.classList.add('correct');
+  });
+
+  // 显示解析
+  document.getElementById('anal-' + key).classList.add('show');
+
+  // 更新计分
+  if (isCorrect) subjectCorrect[si]++;
+  
+  // 更新进度
+  updateProgress(si);
+  updateScoreBar();
+}
+
+function updateProgress(si) {
+  const answered = Object.entries(state)
+    .filter(([k]) => k.startsWith(si + '_') && state[k] !== null).length;
+  const total = subjectTotal[si];
+  const pct = (answered / total * 100).toFixed(0);
+  const bar = document.getElementById('prog-' + si);
+  if (bar) bar.style.width = pct + '%';
+  const txt = document.getElementById('prog-text-' + si);
+  if (txt) txt.textContent = `已答 ${answered} / ${total} 题，答对 ${subjectCorrect[si]} 题`;
+}
+
+function updateScoreBar() {
+  const bar = document.getElementById('score-bar');
+  bar.innerHTML = DATA.map((s,si) => {
+    const total = subjectTotal[si];
+    const correct = subjectCorrect[si];
+    const answered = Object.entries(state).filter(([k]) => k.startsWith(si+'_') && state[k]!==null).length;
+    if (answered === 0) return `<span class="score-tag" style="border:1px solid ${s.color};color:${s.color}">${s.short} -</span>`;
+    const pct = Math.round(correct/answered*100);
+    return `<span class="score-tag" style="background:${s.color}20;border:1px solid ${s.color};color:${s.color}">${s.short} ${correct}/${answered} (${pct}%)</span>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>
